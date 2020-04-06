@@ -1,0 +1,2 @@
+name,array_dim,embedding_dim,count,max_len
+item,1,128,500000,150
