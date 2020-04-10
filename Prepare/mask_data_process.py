@@ -25,7 +25,7 @@ class mask_data_process():
            test_frac： train test radio
        """
 
-    def __init__(self, behavior_seq,use_action,mask_rate,offset):
+    def __init__(self, behavior_seq, use_action, mask_rate, offset):
 
         # the list for masking item
         mask_index_list = []
@@ -57,7 +57,7 @@ class mask_data_process():
 
 
     # get the mask item list
-    def get_mask_index_list_behaivor(self,only_last = False):
+    def get_mask_index_list_behaivor(self, only_last=False):
 
         if only_last == True:
             # get the last index
@@ -153,7 +153,7 @@ class mask_data_process():
 
     #for different type sample
     #for random ,time or normal
-    def mask_process_unidirectional(self,type,index,time_window = 24 * 3600 * 35):
+    def mask_process_unidirectional(self, type, index, time_window=24 * 3600 * 35):
 
         # only sample the data before the label
         if type == "unidirection":
@@ -179,8 +179,6 @@ class mask_data_process():
                     break
 
 
-
-
         user_seq_temp = [self.user_seq[i] for i in range(0, self.length) if i < temp_index]
         item_seq_temp = [self.item_seq[i] for i in range(0, self.length) if i < temp_index]
         category_seq_temp = [self.category_seq[i] for i in range(0, self.length) if i < temp_index]
@@ -196,9 +194,9 @@ class mask_data_process():
         factor_list = [category_seq_temp, time_stamp_seq_temp]
         if self.use_action == True:
             action_seq_temp.append(self.target_random_value)
-            factor_list = [category_seq_temp, time_stamp_seq_temp, action_seq_temp]
+            factor_list = [category_seq_temp, action_seq_temp, time_stamp_seq_temp]
 
-        return user_seq_temp[0], item_seq_temp, factor_list
+        return user_seq_temp[0], item_seq_temp, factor_list, time_stamp_seq_temp
 
     #get the random neg item
     def get_neg_item(self,item_count,number = 1):

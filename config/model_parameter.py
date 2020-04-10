@@ -35,7 +35,7 @@ class model_parameter:
         # 每100个批次的训练状态
         self.flags.DEFINE_integer('display_freq', 10, 'Display training status every this iteration')
         self.flags.DEFINE_integer('eval_freq', 20, 'Display training status every this iteration')
-        self.flags.DEFINE_integer('max_len', 150, 'max len of attention')
+        self.flags.DEFINE_integer('max_len', 50, 'max len of attention')
         self.flags.DEFINE_integer('global_step', 100, 'global_step to summery AUC')
 
         # Runtime parameters
@@ -87,12 +87,12 @@ class model_parameter:
 
         if type == "tianchi":
             self.flags.FLAGS.version = "gen_pic"
-            self.flags.FLAGS.type = "Tianchi"
+            self.flags.FLAGS.type = "tmall"
             self.flags.FLAGS.test_frac = 10
             self.flags.FLAGS.num_blocks = 2
             self.flags.FLAGS.user_count_limit = 1000
             self.flags.FLAGS.checkpoint_path_dir = None
-            self.flags.FLAGS.max_epochs = 6
+            self.flags.FLAGS.max_epochs = 10
             self.flags.FLAGS.load_type = "from_scratch"
             self.flags.FLAGS.raw_data_path = "data/raw_data/tianchi_raw_data.csv"
             self.flags.FLAGS.raw_data_path_meta = "data/raw_data/tianchi_raw_data.csv"
@@ -100,7 +100,7 @@ class model_parameter:
             self.flags.FLAGS.init_origin_data = False
             self.flags.FLAGS.eval_freq = 10
             self.flags.FLAGS.fine_tune_load_path = "data/check_point/Tianchi_bsbe_bisIE_adam_blocks2_adam_dropout0.5_lr0.0001"
-            self.flags.FLAGS.experiment_type = "slirec"
+            self.flags.FLAGS.experiment_type = "dmpn"
             self.flags.FLAGS.lstur_type = 'pref'
             self.flags.FLAGS.pos_embedding = "time"
             self.flags.FLAGS.causality = "random"
@@ -108,7 +108,7 @@ class model_parameter:
 
         elif type == "amazon":
             self.flags.FLAGS.version = "gen_pic"
-            self.flags.FLAGS.type = "Amazon"
+            self.flags.FLAGS.type = "amazon"
             self.flags.FLAGS.test_frac = 10
             self.flags.FLAGS.num_blocks = 2
             self.flags.FLAGS.user_count_limit = 1000

@@ -47,12 +47,7 @@ class Train_main_process:
         # logger.info("The model parameter is :" + str(self.FLAGS._parse_flags()))
 
         #init data and embeding
-        get_origin_data_ins = Get_origin_data(type = self.FLAGS.type,
-                                              raw_data_path=self.FLAGS.raw_data_path,
-                                              raw_data_path_meta=self.FLAGS.raw_data_path_meta,
-                                              logger=self.logger)
-
-        #get_train_test_ins = Get_train_test(FLAGS=self.FLAGS,origin_data=get_origin_data_ins.origin_data)
+        get_origin_data_ins = Get_origin_data(FLAGS=self.FLAGS)
         if self.FLAGS.experiment_type == "dib" \
                 or self.FLAGS.experiment_type == "no_emb" \
                 or self.FLAGS.experiment_type == "slirec" \
@@ -63,27 +58,23 @@ class Train_main_process:
                 or self.FLAGS.experiment_type == "dmpn" \
                 or self.FLAGS.experiment_type == "atrank":
 
-            prepare_data_behavior_ins = prepare_data_behavior(self.FLAGS,get_origin_data_ins.origin_data)
+            prepare_data_behavior_ins = prepare_data_behavior(self.FLAGS, get_origin_data_ins.origin_data)
 
         elif self.FLAGS.experiment_type == "bpr":
             prepare_data_behavior_ins = prepare_data_bpr(self.FLAGS, get_origin_data_ins.origin_data)
+
+
 
         
         self.logger.info('DataHandle Process.\tCost time: %.2fs' % (time.time() - start_time))
         start_time = time.time()
 
         #genne
-        if self.FLAGS.experiment_type == "bsbe" \
-                or self.FLAGS.experiment_type == "atrank"\
-                or self.FLAGS.experiment_type == "istsbp"\
-                or self.FLAGS.experiment_type == "pistrec":
-            self.emb = Behavior_embedding_nodec(self.FLAGS.is_training,self.FLAGS.embedding_config_file)
-
-        elif self.FLAGS.experiment_type == "slirec" \
+        if self.FLAGS.experiment_type == "slirec" \
                 or self.FLAGS.experiment_type == "sasrec" \
                 or self.FLAGS.experiment_type == "grurec":
             config_file = "config/embedding__dic.csv"
-            self.emb = Behavior_embedding_nodec(self.FLAGS.is_training,config_file)
+            self.emb = Behavior_embedding_nodec(self.FLAGS.is_training, config_file)
 
         elif self.FLAGS.experiment_type == "no_emb":
             config_file = "config/no_embedding__dic.csv"
@@ -102,8 +93,11 @@ class Train_main_process:
                                        prepare_data_behavior_ins.user_count)
 
         elif self.FLAGS.experiment_type == "dmpn":
-            self.emb = Lstur_embedding(self.FLAGS.is_training,self.FLAGS.embedding_config_file,
-                                       prepare_data_behavior_ins.user_count)
+            self.emb = Lstur_embedding(self.FLAGS.is_training, self.FLAGS.embedding_config_file,
+                                       prepare_data_behavior_ins.user_count,
+                                       prepare_data_behavior_ins.item_count,
+                                       prepare_data_behavior_ins.category_count,
+                                       self.FLAGS.max_len)
 
         elif self.FLAGS.experiment_type == "lstur":
             config_file = "config/embedding__dic.csv"
@@ -113,7 +107,7 @@ class Train_main_process:
         self.train_set, self.test_set = prepare_data_behavior_ins.get_train_test()
         self.logger.info('Get Train Test Data Process.\tCost time: %.2fs' % (time.time() - start_time))
 
-        self.item_category_dic = prepare_data_behavior_ins.item_category_dic
+        # self.item_category_dic = prepare_data_behavior_ins.item_category_dic
         self.global_step = 0
         self.one_epoch_step = 0
         self.now_epoch = 0
@@ -274,12 +268,12 @@ class Train_main_process:
                 # self.logger.info('Test AUC for epoch %d: %.4f' % (epoch, test_auc))
 
                 self.one_epoch_step = 0
-                if self.global_step > 1000:
-                    lr = lr / 2
-                elif lr < 10e-5:
-                    lr = lr * 0.88
-                else:
-                    lr = lr * 0.95
+                # if self.global_step > 1000:
+                #     lr = lr / 2
+                # elif lr < 10e-5:
+                #     lr = lr * 0.88
+                # else:
+                #     lr = lr * 0.95
 
                 self.logger.info('Epoch %d DONE\tCost time: %.2f' %
                       (self.now_epoch, time.time() - start_time))

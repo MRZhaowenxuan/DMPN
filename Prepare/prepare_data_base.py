@@ -35,9 +35,10 @@ class prepare_data_base():
         self.test_frac = FLAGS.test_frac
         self.experiment_type = FLAGS.experiment_type
         self.neg_sample_ratio = FLAGS.neg_sample_ratio
+        self.max_len = FLAGS.max_len
 
         #give the data whether to use action
-        if self.type == "Tianchi":
+        if self.type == "tmall" or self.type == "taobao":
             self.use_action = True
         else:
             self.use_action = False
@@ -82,8 +83,8 @@ class prepare_data_base():
                 self.item_count = data_dic["item_count"]
                 self.user_count = data_dic["user_count"]
                 self.category_count = data_dic["category_count"]
-                self.gap = data_dic["gap"]
-                self.item_category_dic = data_dic["item_category"]
+                # self.gap = data_dic["gap"]
+                # self.item_category_dic = data_dic["item_category"]
                 self.logger.info("load data finish")
                 self.logger.info('Size of training set is ' + str(len(self.train_set)))
                 self.logger.info('Size of testing set is ' + str(len(self.test_set)))
@@ -168,7 +169,6 @@ class prepare_data_base():
         self.now_count = 0
         self.origin_data.groupby(["user_id"]).filter(lambda x: self.data_handle_process(x))
         self.format_train_test()
-        # print(self.train_set)
 
         random.shuffle(self.train_set)
         random.shuffle(self.test_set)
@@ -187,8 +187,8 @@ class prepare_data_base():
             data_dic["item_count"] = self.item_count
             data_dic["user_count"] = self.user_count
             data_dic["category_count"] = self.category_count
-            data_dic["gap"] = self.gap
-            data_dic["item_category"] = self.item_category_dic
+            # data_dic["gap"] = self.gap
+            # data_dic["item_category"] = self.item_category_dic
             pickle.dump(data_dic, f, pickle.HIGHEST_PROTOCOL)
 
         return self.train_set, self.test_set
@@ -211,8 +211,8 @@ class prepare_data_base():
             self.data_too_short = self.data_too_short + 1
             return
 
-        if length > 150:
-            behavior_seq = behavior_seq.tail(150)
+        if length > self.max_len:
+            behavior_seq = behavior_seq.tail(self.max_len)
 
         # user limit
         if self.now_count > self.user_count_limit:

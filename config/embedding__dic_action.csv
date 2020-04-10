@@ -1,5 +1,4 @@
 name,array_dim,embedding_dim,count,max_len
 item,1,128,500000,150
 category,2,64,1500,150
-time_interval,2,64,30,150
 action,2,16,8,150

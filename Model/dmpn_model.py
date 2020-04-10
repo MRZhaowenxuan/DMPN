@@ -23,8 +23,8 @@ class DMPN_model(base_model):
         attention_net = Attention()
         gru_net_ins = GRU()
 
-        self.sequence_embedding, self.positive_embedding, self.negative_embedding, \
-        self.behavior_embedding_result_dense, self.positive_embedding_result_dense, self.negative_embedding_result_dense,\
+        self.sequence_embedding, self.positive_embedding, \
+        self.behavior_embedding_result_dense, self.positive_embedding_result_dense, \
         self.mask_index, self.label_ids, \
         self.seq_length, user_embedding, self.time = self.embedding.get_embedding(num_units)
 
@@ -33,35 +33,6 @@ class DMPN_model(base_model):
                                                         num_units=128, num_heads=num_heads, num_blocks=num_blocks,
                                                         dropout_rate=dropout_rate, is_training=True, reuse=False,
                                                         key_length=self.seq_length, query_length=self.seq_length)
-            self.long_term_intent = gather_indexes(batch_size=self.now_bacth_data_size, seq_length=self.FLAGS.max_len,
-                                                 width=self.FLAGS.num_units, sequence_tensor=long_term_intent_temp,
-                                                 positions=self.mask_index)
-
-            # average pooling for long_term_intent_temp
-            self.long_term_preference = tf.reduce_mean(long_term_intent_temp, axis=1)
-
-        with tf.variable_scope('ShortTermIntentEncoder'):
-            short_term_intent_temp = gru_net_ins.gru_net(hidden_units=num_units,
-                                                              input_data=self.behavior_embedding_result_dense,
-                                                              input_length=self.mask_index)
-            self.short_term_intent = gather_indexes(batch_size=self.now_bacth_data_size,
-                                                    seq_length=self.FLAGS.max_len,
-                                                    width=self.FLAGS.num_units,
-                                                    sequence_tensor=short_term_intent_temp,
-                                                    positions=tf.add(self.mask_index, -1))
-
-        with tf.variable_scope("EnhancePreferenceIntentEncoder"):
-
-            user_enhance_preference_temp = gru_net_ins.gru_net_initial(hidden_units=num_units,
-                                                          input_length=self.mask_index,
-                                                          input_data=long_term_intent_temp,
-                                                          initial_state=self.long_term_preference)
-
-            self.user_enhance_preference = gather_indexes(batch_size=self.now_bacth_data_size,
-                                                  seq_length=self.FLAGS.max_len,
-                                                  width=self.FLAGS.num_units,
-                                                  sequence_tensor=user_enhance_preference_temp,
-                                                  positions=tf.add(self.mask_index, -1))
 
         with tf.variable_scope("EnhanceUserPreferenceIntentEncoder"):
             self.weight = tf.nn.softmax(tf.matmul(self.behavior_embedding_result_dense,
@@ -87,16 +58,6 @@ class DMPN_model(base_model):
                                                   sequence_tensor=self.user_enhance_preference_temp_user,
                                                   positions=tf.add(self.mask_index, -1))
 
-        with tf.variable_scope("PreferenceEncoder"):
-            user_preference_temp = gru_net_ins.gru_net(hidden_units=num_units,
-                                                              input_data=long_term_intent_temp,
-                                                              input_length=self.mask_index)
-            self.user_preference = gather_indexes(batch_size=self.now_bacth_data_size,
-                                                    seq_length=self.FLAGS.max_len,
-                                                    width=self.FLAGS.num_units,
-                                                    sequence_tensor=user_preference_temp,
-                                                    positions=tf.add(self.mask_index, -1))
-
         with tf.variable_scope("OutputLayer"):
             self.predict_behavior_emb = self.user_enhance_preference_user
 
@@ -116,7 +77,7 @@ class DMPN_model(base_model):
             logits = tf.matmul(self.predict_behavior_emb, item_lookup_table_T)
             log_probs = tf.nn.log_softmax(logits)
             label_ids = tf.reshape(self.label_ids, [-1])
-            one_hot_labels = tf.one_hot(label_ids, depth=500000, dtype=tf.float32)
+            one_hot_labels = tf.one_hot(label_ids, depth=self.embedding.item_count+3, dtype=tf.float32)
             self.loss_origin = -tf.reduce_sum(log_probs * one_hot_labels, axis=[-1])
             lstur_loss = regulation_rate * l2_norm + tf.reduce_mean(self.loss_origin)
 
