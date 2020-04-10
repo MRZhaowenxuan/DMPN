@@ -92,7 +92,7 @@ class model_parameter:
             self.flags.FLAGS.num_blocks = 2
             self.flags.FLAGS.user_count_limit = 1000
             self.flags.FLAGS.checkpoint_path_dir = None
-            self.flags.FLAGS.max_epochs = 10
+            self.flags.FLAGS.max_epochs = 20
             self.flags.FLAGS.load_type = "from_scratch"
             self.flags.FLAGS.raw_data_path = "data/raw_data/tianchi_raw_data.csv"
             self.flags.FLAGS.raw_data_path_meta = "data/raw_data/tianchi_raw_data.csv"
@@ -101,7 +101,6 @@ class model_parameter:
             self.flags.FLAGS.eval_freq = 10
             self.flags.FLAGS.fine_tune_load_path = "data/check_point/Tianchi_bsbe_bisIE_adam_blocks2_adam_dropout0.5_lr0.0001"
             self.flags.FLAGS.experiment_type = "dmpn"
-            self.flags.FLAGS.lstur_type = 'pref'
             self.flags.FLAGS.pos_embedding = "time"
             self.flags.FLAGS.causality = "random"
             self.flags.FLAGS.embedding_config_file = "config/embedding__dic_action.csv"
@@ -113,7 +112,7 @@ class model_parameter:
             self.flags.FLAGS.num_blocks = 2
             self.flags.FLAGS.user_count_limit = 1000
             self.flags.FLAGS.checkpoint_path_dir = None
-            self.flags.FLAGS.max_epochs = 6
+            self.flags.FLAGS.max_epochs = 20
             self.flags.FLAGS.load_type = "from_scratch"
             self.flags.FLAGS.raw_data_path = "data/raw_data/reviews_Electronics_5.json"
             self.flags.FLAGS.raw_data_path_meta = "data/raw_data/meta_Electronics.json"
@@ -122,7 +121,6 @@ class model_parameter:
             self.flags.FLAGS.eval_freq = 10
             self.flags.FLAGS.fine_tune_load_path = "data/check_point/Tianchi_bsbe_bisIE_adam_blocks2_adam_dropout0.5_lr0.0001"
             self.flags.FLAGS.experiment_type = "dmpn"
-            self.flags.FLAGS.lstur_type = 'pref'
             self.flags.FLAGS.pos_embedding = "time"
             self.flags.FLAGS.causality = "random"
             self.flags.FLAGS.embedding_config_file = "config/embedding__dic.csv"
