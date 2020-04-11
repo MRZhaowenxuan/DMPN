@@ -69,7 +69,8 @@ class DMPN_model(base_model):
 
             l2_norm = tf.add_n([
                 tf.nn.l2_loss(self.sequence_embedding),
-                tf.nn.l2_loss(self.positive_embedding)
+                tf.nn.l2_loss(self.positive_embedding),
+                tf.nn.l2_loss(user_embedding)
             ])
             regulation_rate = self.FLAGS.regulation_rate
 

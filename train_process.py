@@ -64,45 +64,25 @@ class Train_main_process:
             prepare_data_behavior_ins = prepare_data_bpr(self.FLAGS, get_origin_data_ins.origin_data)
 
 
-
-        
         self.logger.info('DataHandle Process.\tCost time: %.2fs' % (time.time() - start_time))
         start_time = time.time()
 
-        #genne
-        if self.FLAGS.experiment_type == "slirec" \
-                or self.FLAGS.experiment_type == "sasrec" \
-                or self.FLAGS.experiment_type == "grurec":
-            config_file = "config/embedding__dic.csv"
-            self.emb = Behavior_embedding_nodec(self.FLAGS.is_training, config_file)
-
-        elif self.FLAGS.experiment_type == "no_emb":
+        #embedding
+        if self.FLAGS.experiment_type == "no_emb":
             config_file = "config/no_embedding__dic.csv"
             self.emb = No_embedding(self.FLAGS.is_training, config_file)
-
-        elif self.FLAGS.experiment_type == "bert":
-            config_file = "config/no_embedding__dic.csv"
-            self.emb = Position_embedding(self.FLAGS.is_training, config_file)
 
         elif self.FLAGS.experiment_type == "bpr":
             self.emb = Bprmf_embedding(self.FLAGS.is_training,self.FLAGS.embedding_config_file,
                                        prepare_data_behavior_ins.user_count,
                                        prepare_data_behavior_ins.item_count)
-        elif self.FLAGS.experiment_type == "dib":
-            self.emb = Lstur_embedding(self.FLAGS.is_training,self.FLAGS.embedding_config_file,
-                                       prepare_data_behavior_ins.user_count)
 
-        elif self.FLAGS.experiment_type == "dmpn":
+        else:
             self.emb = Lstur_embedding(self.FLAGS.is_training, self.FLAGS.embedding_config_file,
                                        prepare_data_behavior_ins.user_count,
                                        prepare_data_behavior_ins.item_count,
                                        prepare_data_behavior_ins.category_count,
                                        self.FLAGS.max_len)
-
-        elif self.FLAGS.experiment_type == "lstur":
-            config_file = "config/embedding__dic.csv"
-            self.emb = Lstur_embedding(self.FLAGS.is_training, config_file,
-                                       prepare_data_behavior_ins.user_count)
 
         self.train_set, self.test_set = prepare_data_behavior_ins.get_train_test()
         self.logger.info('Get Train Test Data Process.\tCost time: %.2fs' % (time.time() - start_time))
@@ -187,7 +167,7 @@ class Train_main_process:
                 self.model = DMPN_model(self.FLAGS, self.emb,self.sess)
 
 
-            self.logger.info('Init finish.\tCost time: %.2fs' % (time.time() - start_time))
+            self.logger.info('Init model finish.\tCost time: %.2fs' % (time.time() - start_time))
 
             # test_auc = self.model.metrics(sess=self.sess,
             #                               batch_data=self.test_set,
@@ -207,7 +187,11 @@ class Train_main_process:
 
             # Start training
             self.logger.info('Training....\tmax_epochs:%d\tepoch_size:%d' % (self.FLAGS.max_epochs,self.FLAGS.train_batch_size))
-            start_time, avg_loss, self.best_auc,self.best_recall,self.best_ndcg = time.time(), 0.0,0.0,0.0,0.0
+            start_time = time.time()
+            avg_loss = 0.0
+            self.best_hr_5, self.best_ndcg_5,\
+            self.best_hr_10, self.best_ndcg_10,\
+            self.best_hr_20, self.best_ndcg_20, = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
             for epoch in range(self.FLAGS.max_epochs):
 
                 random.shuffle(self.train_set)
@@ -219,7 +203,7 @@ class Train_main_process:
                     try:
                         lr = self.sess.run(learing_rate, feed_dict={global_step_lr: self.global_step})
                         add_summary = bool(self.global_step % self.FLAGS.display_freq == 0)
-                        step_loss,merge = self.model.train(self.sess,train_batch_data,lr,add_summary,self.global_step)
+                        step_loss, merge = self.model.train(self.sess,train_batch_data,lr,add_summary,self.global_step)
                         self.model.train_writer.add_summary(merge,self.global_step)
                         avg_loss = avg_loss + step_loss
                         self.global_step = self.global_step + 1
@@ -275,8 +259,7 @@ class Train_main_process:
                 # else:
                 #     lr = lr * 0.95
 
-                self.logger.info('Epoch %d DONE\tCost time: %.2f' %
-                      (self.now_epoch, time.time() - start_time))
+                self.logger.info('Epoch %d DONE\tCost time: %.2f' % (self.now_epoch, time.time() - start_time))
                 self.logger.info("----------------------------------------------------------------------")
 
                 self.now_epoch = self.now_epoch + 1
@@ -285,7 +268,13 @@ class Train_main_process:
 
         self.model.save(self.sess,self.global_step)
         # self.logger.info('best test_auc: ' + str(self.best_auc))
-        self.logger.info('best recall: ' + str(self.best_recall))
+        self.logger.info('best HR@5: ' + str(self.best_hr_5))
+        self.logger.info('best HR@10: ' + str(self.best_hr_10))
+        self.logger.info('best HR@20: ' + str(self.best_hr_20))
+
+        self.logger.info('best NDCG@5: ' + str(self.best_ndcg_5))
+        self.logger.info('best NDCG@10: ' + str(self.best_ndcg_10))
+        self.logger.info('best NDCG@20: ' + str(self.best_ndcg_20))
 
         self.logger.info('Finished')
 
@@ -300,18 +289,32 @@ class Train_main_process:
         is_save_model = False
         #for bsbe
         # if self.FLAGS.experiment_type == "bsbe" or self.FLAGS.experiment_type == "bpr":
-        if self.FLAGS.experiment_type == "bsbe":
-            if (self.test_auc > 0.85 and self.test_auc - self.best_auc > 0.01):
-                self.best_auc = self.test_auc
-                is_save_model = True
+        # if self.FLAGS.experiment_type == "bsbe":
+        #     if (self.test_auc > 0.85 and self.test_auc - self.best_auc > 0.01):
+        #         self.best_auc = self.test_auc
+        #         is_save_model = True
+        #
+        # #recall  for  istsbp
+        # elif self.FLAGS.experiment_type == "istsbp" or self.FLAGS.experiment_type == "pistrec":
+        #     if self.recall_rate > 0.15 and self.recall_rate > self.best_recall:
+        #         self.best_recall = self.recall_rate
+        #         is_save_model =True
 
-        #recall  for  istsbp
-        elif self.FLAGS.experiment_type == "istsbp" or self.FLAGS.experiment_type == "pistrec":
-            if self.recall_rate > 0.15 and self.recall_rate > self.best_recall:
-                self.best_recall = self.recall_rate
-                is_save_model =True
+        if self.hr_5 > self.best_hr_5:
+            self.best_hr_5 = self.hr_5
+        if self.hr_10 > self.best_hr_10:
+            self.best_hr_10 = self.hr_10
+        if self.hr_20 > self.best_hr_20:
+            self.best_hr_20 = self.hr_20
 
-        if self.global_step % 1500 == 0:
+        if self.ndcg_5 > self.best_ndcg_5:
+            self.best_ndcg_5 = self.ndcg_5
+        if self.ndcg_10 > self.best_ndcg_10:
+            self.best_ndcg_10 = self.ndcg_10
+        if self.ndcg_20 > self.best_ndcg_20:
+            self.best_ndcg_20 = self.ndcg_20
+
+        if self.global_step % 1000 == 0:
             is_save_model = True
 
         if is_save_model == True:

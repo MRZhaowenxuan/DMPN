@@ -20,26 +20,33 @@ class BERT4Rec_model(base_model):
         dropout_rate = self.FLAGS.dropout
 
         attention_net = Attention()
-        gru_net_ins = GRU()
 
-        self.sequence_embedding, self.positive_embedding, self.negative_embedding, \
+        # self.sequence_embedding, self.positive_embedding, self.negative_embedding, \
+        # self.behavior_embedding_result_dense, self.positive_embedding_result_dense, \
+        # self.negative_embedding_result_dense, self.mask_index, self.label_ids, \
+        # self.seq_length = self.embedding.get_embedding(num_units)
+
+        self.sequence_embedding, self.positive_embedding, \
         self.behavior_embedding_result_dense, self.positive_embedding_result_dense, \
-        self.negative_embedding_result_dense, self.mask_index, self.label_ids, \
-        self.seq_length = self.embedding.get_embedding(num_units)
+        self.mask_index, self.label_ids, \
+        self.seq_length, user_embedding, self.time = self.embedding.get_embedding(num_units)
 
         with tf.variable_scope('ShortTermIntentEncoder'):
 
             long_term_intent_temp = attention_net.self_attention_single(enc=self.behavior_embedding_result_dense,
-                                                                 num_units=128, num_heads=num_heads,
-                                                                 num_blocks=num_blocks,
-                                                                 dropout_rate=dropout_rate, is_training=True,
-                                                                 reuse=False)
-            long_term_intent_dense = tf.layers.dense(long_term_intent_temp, num_units,
-                                                                       activation=tf.nn.relu, use_bias=False,
-                                                                       kernel_regularizer=tf.contrib.layers.l2_regularizer(
-                                                                           1e-5),
-                                                                       name='mlp',
-                                                                       reuse=False)
+                                                                        num_units=128,
+                                                                        num_heads=num_heads,
+                                                                        num_blocks=num_blocks,
+                                                                        dropout_rate=dropout_rate,
+                                                                        is_training=True,
+                                                                        reuse=False)
+            long_term_intent_dense = tf.layers.dense(long_term_intent_temp,
+                                                     num_units,
+                                                     activation=tf.nn.relu,
+                                                     use_bias=False,
+                                                     kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-5),
+                                                     name='mlp',
+                                                     reuse=False)
             self.long_term_intent = gather_indexes(batch_size=self.now_bacth_data_size, seq_length=self.FLAGS.max_len,
                                                    width=self.FLAGS.num_units, sequence_tensor=long_term_intent_dense,
                                                    positions=self.mask_index)
@@ -49,14 +56,13 @@ class BERT4Rec_model(base_model):
 
             self.predict_behavior_emb = layer_norm(self.predict_behavior_emb)
 
-            self.mf_auc = tf.reduce_mean(tf.to_float((tf.reduce_sum(tf.multiply(tf.expand_dims(self.predict_behavior_emb, 1),
-                                                                                tf.expand_dims(self.positive_embedding_result_dense, 1) - self.negative_embedding_result_dense), 2)) > 0))
+            # self.mf_auc = tf.reduce_mean(tf.to_float((tf.reduce_sum(tf.multiply(tf.expand_dims(self.predict_behavior_emb, 1),
+            #                                                                     tf.expand_dims(self.positive_embedding_result_dense, 1) - self.negative_embedding_result_dense), 2)) > 0))
 
 
             l2_norm = tf.add_n([
                 tf.nn.l2_loss(self.sequence_embedding),
-                tf.nn.l2_loss(self.positive_embedding),
-                tf.nn.l2_loss(self.negative_embedding)
+                tf.nn.l2_loss(self.positive_embedding)
             ])
             regulation_rate = self.FLAGS.regulation_rate
 
@@ -64,7 +70,7 @@ class BERT4Rec_model(base_model):
             logits = tf.matmul(self.predict_behavior_emb, item_lookup_table_T)
             log_probs = tf.nn.log_softmax(logits)
             label_ids = tf.reshape(self.label_ids, [-1])
-            one_hot_labels = tf.one_hot(label_ids, depth=500000, dtype=tf.float32)
+            one_hot_labels = tf.one_hot(label_ids, depth=self.embedding.item_count+3, dtype=tf.float32)
             self.loss_origin = -tf.reduce_sum(log_probs * one_hot_labels, axis=[-1])
             lstur_loss = regulation_rate * l2_norm + tf.reduce_mean(self.loss_origin)
 
