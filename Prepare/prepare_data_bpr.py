@@ -26,9 +26,8 @@ class prepare_data_bpr(prepare_data_base):
 
         if self.use_action == False:
             for index, behavior in behavior_seq.iterrows():
-                self.data_set.append((behavior['user_id'],
-                                      (behavior['item_id'],
-                                       np.random.randint(self.offset + 1, self.item_count + self.offset))))
+                self.data_set.append((behavior['user_id'], behavior['item_id'],
+                                      np.random.randint(self.offset + 1, self.item_count + self.offset)))
         else:
             for index, behavior in behavior_seq.iterrows():
                 if behavior['action_type'] == 2:

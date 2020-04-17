@@ -7,7 +7,7 @@ class Bprmf_model(base_model):
     def __init__(self, FLAGS,Embeding,sess):
 
         super(Bprmf_model, self).__init__(FLAGS,Embeding)
-        # self.now_bacth_data_size = tf.placeholder(tf.int32, shape=[], name="batch_size")
+        self.now_bacth_data_size = tf.placeholder(tf.int32, shape=[], name="batch_size")
         # Summary Writer
         self.learning_rate = tf.placeholder(tf.float64, [], name="learning_rate")
         self.build_model()
