@@ -36,6 +36,7 @@ class prepare_data_base():
         self.experiment_type = FLAGS.experiment_type
         self.neg_sample_ratio = FLAGS.neg_sample_ratio
         self.max_len = FLAGS.max_len
+        self.model = FLAGS.experiment_type
 
         #give the data whether to use action
         if self.type == "tmall" or self.type == "taobao":
@@ -56,8 +57,12 @@ class prepare_data_base():
         self.dataset_path = 'data/training_testing_data/'
         if not os.path.exists(self.dataset_path):
             os.mkdir(self.dataset_path)
-        self.dataset_class_path = self.dataset_path + self.type + "_" + \
-                                  self.FLAGS.pos_embedding + "_" + self.FLAGS.causality + '_train_test_class.pkl'
+        if self.model == "bpr":
+            self.dataset_class_path = self.dataset_path + self.type + "_" + self.model + "_" + \
+                                      self.FLAGS.pos_embedding + "_" + self.FLAGS.causality + '_train_test_class.pkl'
+        else:
+            self.dataset_class_path = self.dataset_path + self.type + "_" + \
+                                      self.FLAGS.pos_embedding + "_" + self.FLAGS.causality + '_train_test_class.pkl'
 
         self.mask_rate = self.FLAGS.mask_rate
         log_ins = create_log()
