@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 from config.model_parameter import model_parameter
-from DataHandle.get_originx_data_base import Get_origin_data_base
+from DataHandle.get_origin_data_base import Get_origin_data_base
 np.random.seed(1234)
 
 class Get_taobao_data(Get_origin_data_base):

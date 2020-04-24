@@ -14,6 +14,7 @@ from Model.gru4rec_model import GRU4Rec_model
 from Model.lstur_model import LSTUR_model
 from Model.bert4rec_model import BERT4Rec_model
 from Model.dmpn_model import DMPN_model
+from Model.dmpn2_model import DMPN2_model
 from DataHandle.get_origin_data import Get_origin_data
 from Embedding.bprmf_embedding import Bprmf_embedding
 from Embedding.lstur_embedding import Lstur_embedding
@@ -56,7 +57,8 @@ class Train_main_process:
                 or self.FLAGS.experiment_type == "grurec" \
                 or self.FLAGS.experiment_type == "bert" \
                 or self.FLAGS.experiment_type == "dmpn" \
-                or self.FLAGS.experiment_type == "atrank":
+                or self.FLAGS.experiment_type == "atrank"\
+                or self.FLAGS.experiment_type == "dmpn2":
 
             prepare_data_behavior_ins = prepare_data_behavior(self.FLAGS, get_origin_data_ins.origin_data)
 
@@ -165,6 +167,9 @@ class Train_main_process:
 
             elif self.FLAGS.experiment_type == 'dmpn':
                 self.model = DMPN_model(self.FLAGS, self.emb,self.sess)
+
+            elif self.FLAGS.experiment_type == 'dmpn2':
+                self.model = DMPN2_model(self.FLAGS, self.emb,self.sess)
 
 
             self.logger.info('Init model finish.\tCost time: %.2fs' % (time.time() - start_time))

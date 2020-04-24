@@ -15,7 +15,9 @@ class Get_origin_data():
             self.get_origin_data_ins = Get_taobao_data(self.FLAGS)
         elif self.FLAGS.type == 'tmall':
             self.get_origin_data_ins = Get_tmall_data(self.FLAGS)
-        elif self.FLAGS.type == 'amazon':
+        elif self.FLAGS.type == 'amazon' \
+                or self.FLAGS.type == 'beauty'\
+                or self.FLAGS.type == 'kindle':
             self.get_origin_data_ins = Get_amzon_data(self.FLAGS)
         elif self.FLAGS.type == 'movie':
             self.get_origin_data_ins = Get_movie_data(self.FLAGS)

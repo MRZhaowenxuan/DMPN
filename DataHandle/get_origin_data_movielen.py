@@ -1,4 +1,4 @@
-from DataHandle.get_originx_data_base import Get_origin_data_base
+from DataHandle.get_origin_data_base import Get_origin_data_base
 import pandas as pd
 import numpy as np
 import os

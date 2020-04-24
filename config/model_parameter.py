@@ -80,7 +80,7 @@ class model_parameter:
         self.flags.DEFINE_integer('top_k', 20, "evaluate recall ndcg for k users")
         self.flags.DEFINE_string('embedding_config_file', "data/config/embedding__dic.csv", "the embedding config")
         # self.flags.DEFINE_string('experiment_name', "TomSun_server1", "the expeiment")
-        self.flags.DEFINE_string('experiment_name', "tianchi", "the expeiment")
+        self.flags.DEFINE_string('experiment_name', "amazon", "the expeiment")
 
 
     def get_parameter(self,type):
@@ -94,8 +94,8 @@ class model_parameter:
             self.flags.FLAGS.checkpoint_path_dir = None
             self.flags.FLAGS.max_epochs = 20
             self.flags.FLAGS.load_type = "from_scratch"
-            self.flags.FLAGS.raw_data_path = "data/raw_data/tianchi_raw_data.csv"
-            self.flags.FLAGS.raw_data_path_meta = "data/raw_data/tianchi_raw_data.csv"
+            # self.flags.FLAGS.raw_data_path = "data/raw_data/tianchi_raw_data.csv"
+            # self.flags.FLAGS.raw_data_path_meta = "data/raw_data/tianchi_raw_data.csv"
             self.flags.FLAGS.train_batch_size = 50
             self.flags.FLAGS.init_origin_data = False
             self.flags.FLAGS.eval_freq = 10
@@ -107,15 +107,15 @@ class model_parameter:
 
         elif type == "amazon":
             self.flags.FLAGS.version = "gen_pic"
-            self.flags.FLAGS.type = "amazon"
+            self.flags.FLAGS.type = "kindle"
             self.flags.FLAGS.test_frac = 10
             self.flags.FLAGS.num_blocks = 2
             self.flags.FLAGS.user_count_limit = 1000
             self.flags.FLAGS.checkpoint_path_dir = None
             self.flags.FLAGS.max_epochs = 20
             self.flags.FLAGS.load_type = "from_scratch"
-            self.flags.FLAGS.raw_data_path = "data/raw_data/reviews_Electronics_5.json"
-            self.flags.FLAGS.raw_data_path_meta = "data/raw_data/meta_Electronics.json"
+            # self.flags.FLAGS.raw_data_path = "data/raw_data/reviews_Electronics_5.json"
+            # self.flags.FLAGS.raw_data_path_meta = "data/raw_data/meta_Electronics.json"
             self.flags.FLAGS.train_batch_size = 50
             self.flags.FLAGS.init_origin_data = False
             self.flags.FLAGS.eval_freq = 10

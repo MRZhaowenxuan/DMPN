@@ -3,7 +3,7 @@ import numpy as np
 import os
 import time
 from config.model_parameter import model_parameter
-from DataHandle.get_originx_data_base import Get_origin_data_base
+from DataHandle.get_origin_data_base import Get_origin_data_base
 np.random.seed(1234)
 
 class Get_tmall_data(Get_origin_data_base):

@@ -2,15 +2,25 @@ import pandas as pd
 import numpy as np
 import os
 from config.model_parameter import model_parameter
-from DataHandle.get_originx_data_base import Get_origin_data_base
+from DataHandle.get_origin_data_base import Get_origin_data_base
 np.random.seed(1234)
 
 class Get_amzon_data(Get_origin_data_base):
     def __init__(self, FLAGS):
         super(Get_amzon_data, self).__init__(FLAGS=FLAGS)
-        self.data_path = "data/orgin_data/amazon.csv"
-        self.raw_data_path = "data/raw_data/reviews_Electronics_5.json"
-        self.raw_data_path_meta = "data/raw_data/meta_Electronics.json"
+
+        if FLAGS.type == "amazon":
+            self.data_path = "data/orgin_data/amazon.csv"
+            self.raw_data_path = "data/raw_data/reviews_Electronics_5.json"
+            self.raw_data_path_meta = "data/raw_data/meta_Electronics.json"
+        elif FLAGS.type == "beauty":
+            self.data_path = "data/orgin_data/beauty.csv"
+            self.raw_data_path = "data/raw_data/reviews_Beauty_5.json"
+            self.raw_data_path_meta = "data/raw_data/meta_Beauty.json"
+        elif FLAGS.type == "kindle":
+            self.data_path = "data/orgin_data/kindle.csv"
+            self.raw_data_path = "data/raw_data/reviews_Kindle_Store_5.json"
+            self.raw_data_path_meta = "data/raw_data/meta_Kindle_Store.json"
 
         if FLAGS.init_origin_data == True:
             if os.path.exists(self.data_path):
