@@ -82,6 +82,7 @@ class model_parameter:
         # self.flags.DEFINE_string('experiment_name', "TomSun_server1", "the expeiment")
         self.flags.DEFINE_string('experiment_name', "amazon", "the expeiment")
 
+        self.flags.DEFINE_boolean('add_summary', False, 'whether to add tensorboard')
 
     def get_parameter(self,type):
 
@@ -98,6 +99,7 @@ class model_parameter:
             # self.flags.FLAGS.raw_data_path_meta = "data/raw_data/tianchi_raw_data.csv"
             self.flags.FLAGS.train_batch_size = 50
             self.flags.FLAGS.init_origin_data = False
+            self.flags.FLAGS.add_summary = False
             self.flags.FLAGS.eval_freq = 10
             self.flags.FLAGS.fine_tune_load_path = "data/check_point/Tianchi_bsbe_bisIE_adam_blocks2_adam_dropout0.5_lr0.0001"
             self.flags.FLAGS.experiment_type = "dmpn"
@@ -118,6 +120,7 @@ class model_parameter:
             # self.flags.FLAGS.raw_data_path_meta = "data/raw_data/meta_Electronics.json"
             self.flags.FLAGS.train_batch_size = 50
             self.flags.FLAGS.init_origin_data = False
+            self.flags.FLAGS.add_summary = False
             self.flags.FLAGS.eval_freq = 10
             self.flags.FLAGS.fine_tune_load_path = "data/check_point/Tianchi_bsbe_bisIE_adam_blocks2_adam_dropout0.5_lr0.0001"
             self.flags.FLAGS.experiment_type = "dmpn"

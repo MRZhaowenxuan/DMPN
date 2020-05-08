@@ -84,9 +84,10 @@ class DMPN_model(base_model):
 
         with tf.name_scope("LearningtoRankLoss"):
             self.loss = lstur_loss
-            tf.summary.scalar("l2_norm", l2_norm)
-            tf.summary.scalar("Training Loss", self.loss)
-            tf.summary.scalar("Learning_rate", self.learning_rate)
+            if self.FLAGS.add_summary:
+                tf.summary.scalar("l2_norm", l2_norm)
+                tf.summary.scalar("Training Loss", self.loss)
+                tf.summary.scalar("Learning_rate", self.learning_rate)
 
         trainable_params = tf.trainable_variables()
         gradients = tf.gradients(self.loss, trainable_params)

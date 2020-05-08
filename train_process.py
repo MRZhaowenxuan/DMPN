@@ -14,7 +14,7 @@ from Model.gru4rec_model import GRU4Rec_model
 from Model.lstur_model import LSTUR_model
 from Model.bert4rec_model import BERT4Rec_model
 from Model.dmpn_model import DMPN_model
-from Model.dmpn2_model import DMPN2_model
+from Model.dmpn2_model import DMPN2_model, DMPN3_model, DMPN4_model
 from DataHandle.get_origin_data import Get_origin_data
 from Embedding.bprmf_embedding import Bprmf_embedding
 from Embedding.lstur_embedding import Lstur_embedding
@@ -58,7 +58,9 @@ class Train_main_process:
                 or self.FLAGS.experiment_type == "bert" \
                 or self.FLAGS.experiment_type == "dmpn" \
                 or self.FLAGS.experiment_type == "atrank"\
-                or self.FLAGS.experiment_type == "dmpn2":
+                or self.FLAGS.experiment_type == "dmpn2"\
+                or self.FLAGS.experiment_type == "dmpn3"\
+                or self.FLAGS.experiment_type == "dmpn4":
 
             prepare_data_behavior_ins = prepare_data_behavior(self.FLAGS, get_origin_data_ins.origin_data)
 
@@ -170,6 +172,10 @@ class Train_main_process:
 
             elif self.FLAGS.experiment_type == 'dmpn2':
                 self.model = DMPN2_model(self.FLAGS, self.emb,self.sess)
+            elif self.FLAGS.experiment_type == 'dmpn3':
+                self.model = DMPN3_model(self.FLAGS, self.emb,self.sess)
+            elif self.FLAGS.experiment_type == 'dmpn4':
+                self.model = DMPN4_model(self.FLAGS, self.emb,self.sess)
 
 
             self.logger.info('Init model finish.\tCost time: %.2fs' % (time.time() - start_time))
@@ -209,7 +215,9 @@ class Train_main_process:
                         lr = self.sess.run(learing_rate, feed_dict={global_step_lr: self.global_step})
                         add_summary = bool(self.global_step % self.FLAGS.display_freq == 0)
                         step_loss, merge = self.model.train(self.sess,train_batch_data,lr,add_summary,self.global_step)
-                        self.model.train_writer.add_summary(merge,self.global_step)
+
+                        if self.FLAGS.add_summary:
+                            self.model.train_writer.add_summary(merge, self.global_step)
                         avg_loss = avg_loss + step_loss
                         self.global_step = self.global_step + 1
                         self.one_epoch_step = self.one_epoch_step + 1

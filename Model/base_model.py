@@ -207,12 +207,13 @@ class base_model(object):
         else:
             avg_ndcg = 0
 
-        recall_rate_tag = "recall_rate@" + str(topk)
-        summary_recall_rate = tf.Summary(value=[tf.Summary.Value(tag=recall_rate_tag, simple_value=recall_rate)])
-        self.train_writer.add_summary(summary_recall_rate, global_step=global_step)
-        avg_ndcg_tag = "avg_ndcg@" + str(topk)
-        summary_avg_ndcg = tf.Summary(value=[tf.Summary.Value(tag=avg_ndcg_tag, simple_value=avg_ndcg)])
-        self.train_writer.add_summary(summary_avg_ndcg, global_step=global_step)
+        if self.FLAGS.add_summary:
+            recall_rate_tag = "recall_rate@" + str(topk)
+            summary_recall_rate = tf.Summary(value=[tf.Summary.Value(tag=recall_rate_tag, simple_value=recall_rate)])
+            self.train_writer.add_summary(summary_recall_rate, global_step=global_step)
+            avg_ndcg_tag = "avg_ndcg@" + str(topk)
+            summary_avg_ndcg = tf.Summary(value=[tf.Summary.Value(tag=avg_ndcg_tag, simple_value=avg_ndcg)])
+            self.train_writer.add_summary(summary_avg_ndcg, global_step=global_step)
 
         return recall_rate, avg_ndcg
 
