@@ -26,7 +26,8 @@ class GRU4Rec_model(base_model):
         self.sequence_embedding, self.positive_embedding, \
         self.behavior_embedding_result_dense, self.positive_embedding_result_dense, \
         self.mask_index, self.label_ids, \
-        self.seq_length, user_embedding, self.time = self.embedding.get_embedding(num_units)
+        self.seq_length, user_embedding, self.time_interval, \
+        self.time, self.pos_last_list = self.embedding.get_embedding(num_units)
 
         with tf.variable_scope('ShortTermIntentEncoder'):
             short_term_intent_temp = gru_net_ins.gru_net(hidden_units=num_units,

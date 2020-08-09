@@ -26,7 +26,8 @@ class DMPN_model(base_model):
         self.sequence_embedding, self.positive_embedding, \
         self.behavior_embedding_result_dense, self.positive_embedding_result_dense, \
         self.mask_index, self.label_ids, \
-        self.seq_length, user_embedding, self.time = self.embedding.get_embedding(num_units)
+        self.seq_length, user_embedding, self.time_interval, \
+        self.time, self.pos_last_list = self.embedding.get_embedding(num_units)
 
         with tf.variable_scope("LongTermIntentEncoder"):
             long_term_intent_temp = attention_net.self_attention(enc=self.behavior_embedding_result_dense,
@@ -35,22 +36,23 @@ class DMPN_model(base_model):
                                                         key_length=self.seq_length, query_length=self.seq_length)
 
         with tf.variable_scope("EnhanceUserPreferenceIntentEncoder"):
-            self.weight = tf.nn.softmax(tf.matmul(self.behavior_embedding_result_dense,
-                                    tf.expand_dims(self.positive_embedding_result_dense, axis=2)))
-            self.memory_weight = tf.reduce_sum(tf.multiply(self.behavior_embedding_result_dense, self.weight), axis=1)
-            self.user_embedding_new = tf.add(user_embedding, tf.multiply(tf.constant(0.2), self.memory_weight))
+            # self.weight = tf.nn.softmax(tf.matmul(self.behavior_embedding_result_dense,
+            #                         tf.expand_dims(self.positive_embedding_result_dense, axis=2)))
+            # self.memory_weight = tf.reduce_sum(tf.multiply(self.behavior_embedding_result_dense, self.weight), axis=1)
+            # self.user_embedding_new = tf.add(user_embedding, tf.multiply(tf.constant(0.2), self.memory_weight))
 
-            long_term_intent_temp = tf.concat([long_term_intent_temp, tf.expand_dims(self.time, 2)], 2)
+            long_term_intent_temp = tf.concat([long_term_intent_temp,
+                                               tf.expand_dims(self.time_interval, 2),
+                                               tf.expand_dims(self.pos_last_list, 2)], 2)
 
             # user_enhance_preference_temp_user = gru_net_ins.gru_net_initial(hidden_units=num_units,
             #                                               input_length=self.mask_index,
             #                                               input_data=long_term_intent_temp,
             #                                               initial_state=self.user_embedding_new)
 
-            self.user_enhance_preference_temp_user = gru_net_ins.time_gru_net(hidden_units=num_units,
-                                                                    input_length=self.seq_length,
-                                                                    input_data=long_term_intent_temp,
-                                                                    initial_state=self.user_embedding_new)
+            self.user_enhance_preference_temp_user = gru_net_ins.time_aware_gru_net(hidden_units=num_units,
+                                                                              input_data=long_term_intent_temp,
+                                                                              input_length=tf.add(self.seq_length, -1))
 
             self.user_enhance_preference_user = gather_indexes(batch_size=self.now_bacth_data_size,
                                                   seq_length=self.FLAGS.max_len,

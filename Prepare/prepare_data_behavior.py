@@ -11,6 +11,7 @@ class prepare_data_behavior(prepare_data_base):
 
         #init prepare
         super(prepare_data_behavior, self).__init__(FLAGS, origin_data)
+        self.max_len = FLAGS.max_len
 
     def data_handle_process(self, x):
         #不同的数据处理方式
@@ -32,8 +33,14 @@ class prepare_data_behavior(prepare_data_base):
             #index: the index of behavior_sequence
             # neg_item_list = mask_data_process_ins.get_neg_item(self.item_count, self.neg_sample_ratio)
 
-            if index < 10:
-                continue
+            # if index < 10:
+            #     continue
+            if self.max_len <= 10:
+                if index < 2:
+                    continue
+            else:
+                if index < 10:
+                    continue
 
             user_id, item_seq_temp, factor_list, time_list = \
                 mask_data_process_ins.mask_process_unidirectional(self.FLAGS.causality, index)
@@ -46,10 +53,14 @@ class prepare_data_behavior(prepare_data_base):
 
             #按照时间戳取出时间差
             time_list = [int(x / 3600) for x in time_list]
-            time_list = position(time_list)
+            # time_list = position(time_list)
             target_time = int(mask_data_process_ins.time_stamp_seq[index] / 3600)
-            time_interval_list = mask_data_process_ins.proc_time(time_list, target_time)
+            time_interval_list = mask_data_process_ins.proc_time(position(time_list), target_time)
+            def proc_pos(time_list):
+                pos_last_list = [len(time_list) - i for i in range(1, len(time_list) + 1)]
+                return pos_last_list
 
+            pos_last_list = proc_pos(time_list)
 
             #update time
             # time_interval_seq = mask_data_process_ins.proc_time_emb(factor_list[1],
@@ -77,7 +88,7 @@ class prepare_data_behavior(prepare_data_base):
                 # for neg_item_id in neg_item_list:
                 #     neg_list.append((neg_item_id, self.item_category_dic[neg_item_id], time_offset))
 
-            self.data_set.append((user_id, item_seq_temp, factor_list, temp_index, pos_list))
+            self.data_set.append((user_id, item_seq_temp, factor_list, temp_index, pos_list, time_list, pos_last_list))
 
 
     def format_train_test(self):

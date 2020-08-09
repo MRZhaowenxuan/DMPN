@@ -36,6 +36,8 @@ class Lstur_embedding(Base_embedding):
             self.mask_index = tf.placeholder(tf.int32, [None, 1], name='mask_index')
 
             self.time_interval_list = tf.placeholder(tf.float32, [None, None], name='time_interval_list')
+            self.time_list = tf.placeholder(tf.float32, [None, None], name='time_list')
+            self.pos_last_list = tf.placeholder(tf.float32, [None, None], name='pos_last_list')
 
             for key in self.embedding_dic.keys():
                 key_id = key + "_list"
@@ -107,7 +109,8 @@ class Lstur_embedding(Base_embedding):
         return  behavior_seq_embedding_result, behavior_positive_embedding_result, \
                 behavior_seq_embedding_result_dense, \
                 behavior_positive_embedding_result_dense, \
-                self.mask_index, self.item_positive, self.seq_length, user_emb_result, self.time_interval_list
+                self.mask_index, self.item_positive, self.seq_length, user_emb_result, self.time_interval_list,\
+                self.time_list, self.pos_last_list
 
 
 
@@ -174,6 +177,8 @@ class Lstur_embedding(Base_embedding):
         feed_dic = {}
         user_list = []
         time_list = []
+        pos_list = []
+        time = []
         self.result_item = []
         seq_length = []
         index = 0
@@ -190,8 +195,9 @@ class Lstur_embedding(Base_embedding):
                     seq_length.append(len(one_list))
                     user_list.append(onedata[0])
                     onedata[2][-1][-1] = 1
-                    time_list.append(np.pad(normalize_time(onedata[2][-1]),
-                                            [0, max_len-len(onedata[2][-1])], 'constant'))
+                    time_list.append(np.pad(onedata[2][-1], [0, max_len-len(onedata[2][-1])], 'constant'))
+                    time.append(np.pad(onedata[5], [0, max_len-len(onedata[5])], 'constant'))
+                    pos_list.append(np.pad(onedata[6], [0, max_len - len(onedata[6])], 'constant'))
                 else:
                     one_list = onedata[2][index - 1]
 
@@ -242,6 +248,8 @@ class Lstur_embedding(Base_embedding):
         feed_dic[self.seq_length] = np.array(seq_length)
         feed_dic[self.user_id] = np.array(user_list)
         feed_dic[self.time_interval_list] = np.array(time_list)
+        feed_dic[self.time_list] = np.array(time)
+        feed_dic[self.pos_last_list] = np.array(pos_list)
 
         return feed_dic
 
