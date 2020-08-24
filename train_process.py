@@ -15,6 +15,7 @@ from Model.lstur_model import LSTUR_model
 from Model.bert4rec_model import BERT4Rec_model
 from Model.dmpn_model import DMPN_model
 from Model.dmpn2_model import DMPN2_model, DMPN3_model, DMPN4_model
+from Model.deepfm_model import DFM_model
 from DataHandle.get_origin_data import Get_origin_data
 from Embedding.bprmf_embedding import Bprmf_embedding
 from Embedding.lstur_embedding import Lstur_embedding
@@ -60,7 +61,8 @@ class Train_main_process:
                 or self.FLAGS.experiment_type == "atrank"\
                 or self.FLAGS.experiment_type == "dmpn2"\
                 or self.FLAGS.experiment_type == "dmpn3"\
-                or self.FLAGS.experiment_type == "dmpn4":
+                or self.FLAGS.experiment_type == "dmpn4"\
+                or self.FLAGS.experiment_type == "dfm":
 
             prepare_data_behavior_ins = prepare_data_behavior(self.FLAGS, get_origin_data_ins.origin_data)
 
@@ -176,6 +178,8 @@ class Train_main_process:
                 self.model = DMPN3_model(self.FLAGS, self.emb,self.sess)
             elif self.FLAGS.experiment_type == 'dmpn4':
                 self.model = DMPN4_model(self.FLAGS, self.emb,self.sess)
+            elif self.FLAGS.experiment_type == 'dfm':
+                self.model = DFM_model(self.FLAGS, self.emb,self.sess)
 
 
             self.logger.info('Init model finish.\tCost time: %.2fs' % (time.time() - start_time))
