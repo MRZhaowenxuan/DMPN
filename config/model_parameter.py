@@ -83,6 +83,7 @@ class model_parameter:
         self.flags.DEFINE_string('experiment_name', "amazon", "the expeiment")
 
         self.flags.DEFINE_boolean('add_summary', False, 'whether to add tensorboard')
+        self.flags.DEFINE_boolean("use_mmoe", False, 'whether to use mmoe')
 
     def get_parameter(self,type):
 
